@@ -25,13 +25,18 @@
 %% Path to affiliate logos
 %%
 %% NOTE: THIS MUST BE INCLUDED BEFORE THE MENTION OF confposter
-\newcommand\logopathA{C:/Users/jeffrey.neyhart/OneDrive - USDA/Documents/CranberryLab/Jeff/Presentations/PresentationResources/USDA_Logos/USDAARSIdentityPantone3.png}
+\newcommand\logodir{C:/Users/jln54/Documents/ARS/Writing/Resources/Logos/}
+% \newcommand\logodir{C:/Users/jeffrey.neyhart/OneDrive - USDA/Documents/CranberryLab/Jeff/Presentations/PresentationResources/}
 
-\newcommand\logopathB{C:/Users/jeffrey.neyhart/OneDrive - USDA/Documents/CranberryLab/Jeff/Presentations/PresentationResources/Rutgers_Logos/SEBSDPB_S_RED_BLACK.png}
+\newcommand\logopathA{\logodir/USDA_Logos/USDAARSIdentityPantone3.png}
+\newcommand\logopathB{\logodir/Rutgers_Logos/SEBSDPB_S_RED_BLACK.png}
+\newcommand\logopathC{\logodir/Neyhart_lab_logo_text.png}
+
 
 
 %% Define the paths to the BibTex file for the Zotero library
-\newcommand\mendlibrary{C:/Users/jeffrey.neyhart/Documents/Literature/zotero_library}
+\newcommand\bibdir{C:/Users/jln54/Documents/ARS/Writing/Resources/}
+\newcommand\biblibrary{\bibdir/Paperpile_bibtex_20231101}
 
 
 \documentclass[final]{beamer}
@@ -46,7 +51,23 @@
 
 \usepackage[super,numbers]{natbib} % Use for fine-tunning the captions
 
+
+% Packages to support table creation
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
 \usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage[utf8]{inputenc}
+\usepackage{makecell}
+\usepackage{xcolor}
 
 
 %% Configure code blocks
@@ -125,7 +146,7 @@
 \vspace{1cm}
 
 % Author(s)
-\author{ Jeffrey L. Neyhart\textsuperscript{1,2}, Jennifer Johnson-Cicalese\textsuperscript{2}, and Juan E. Zalapa\textsuperscript{3,4} }
+\author{ \textbf{Jeffrey L. Neyhart\textsuperscript{1,2}}, Jennifer Johnson-Cicalese\textsuperscript{2}, and Juan E. Zalapa\textsuperscript{3,4} }
 
 % Affiliations
 \institute{
@@ -171,11 +192,11 @@
 
 % \begin{large}
 \begin{itemize}
-  \item \textbf{Takeaway 1}
+  \item \textbf{Analyzing multi-environment trial data for perennial crops (e.g. cranberry) must account for serial correlations caused by repeated measures}
   \vspace{0.5cm}
-  \item \textbf{Takeaway 2}
+  \item \textbf{Genetic correlations between years were high for four cranberry traits}
   \vspace{0.5cm}
-  \item \textbf{Takeaway 3}
+  \item \textbf{Accounting for serial correlations led to better model fit and higher prediction accuracy}
 \end{itemize}
 % \end{large}
 
@@ -186,17 +207,22 @@
 %	INTRODUCTION
 %----------------------------------------------------------------------------------------
 
-\begin{block}{Introduction}
+\begin{block}{1. Introduction}
+\vspace{-2cm}
 
-Optimal analysis of multi-environment trials (METs) can aid in identifying superior genotypes in breeding programs.
+
+Optimal analysis of multi-environment trials (METs) can aid in identifying superior genotypes in breeding programs\cite{Bernardo2010-iw}.
 
 \vspace{0.5cm}
 
-MET data for perennial crops presents statistical challenges:
+Stage-wise analysis is common for analyzing data from METs of annual crops\cite{Smith2019-fg}.
+
+\vspace{0.5cm}
+
+MET data for perennial crops like cranberry (\textit{Vaccinium macrocarpon} Ait.) presents statistical challenges:
 \begin{itemize}
   \item \textbf{Unbalanced data}: not all genotype-environment combinations are observed
-  \item \textbf{Serial correlation}: plots, blocks, and genotypes are not randomized across years
-  \item \textbf{Limited replication}: early-stage trials are often single-plant designs
+  \item \textbf{Serial correlation from repeated measures}: plots, blocks, and genotypes are not randomized (and are thus correlated) across years\cite{Piepho2013-kv}
 \end{itemize}
 
 \vspace{0.5cm}
@@ -211,15 +237,24 @@ MET data for perennial crops presents statistical challenges:
 \end{center}
 
 
-\vspace{0.5cm}
+% % Figure 2
+%
+\begin{center}
+  \begin{figure}
+    \includegraphics[width=0.8\linewidth]{figures/figure2_compiled.png}
+    \caption{\textit{Fruit of the zoom (in)}: a bed, plot, and fruit from cranberry breeding trials}
+  \end{figure}
+\end{center}
 
-Mixed-effect models can address these challenges, but have been underutilized in breeding programs of perennial crops such as cranberry
+
+
+
 
 \vspace{0.5cm}
 
 \textbf{Objectives:}
 \begin{itemize}
-  \item Determine the best-fitting mixed-effect model for analyzing data from cranberry METs.
+  \item Identify the best two-stage models for analyzing data from cranberry METs.
   \item Compare the ability of models to predict genotypic performance for multiple traits in future years.
 \end{itemize}
 
@@ -252,38 +287,17 @@ Mixed-effect models can address these challenges, but have been underutilized in
 % \vspace{1cm}
 
 
-%----------------------------------------------------------------------------------------
-%	MATERIALS AND MATERIALS
-%----------------------------------------------------------------------------------------
-
-\begin{block}{Phenotypic data}
-
-We analyzed phenotypic data from three Rutgers cranberry breeding program trials:
-
-\begin{footnotesize}
-
-%% Table 1: description of phenotyping trials
-\begin{table}
-\centering
-\begin{tabular}{>{\raggedright\arraybackslash}p{2.36in}>{\centering\arraybackslash}p{2.36in}>{\centering\arraybackslash}p{2.36in}>{\raggedright\arraybackslash}p{2.36in}>{\centering\arraybackslash}p{2.36in}>{\centering\arraybackslash}p{2.36in}}
-\toprule
-\textbf{trial} & \textbf{planting\_year} & \textbf{plot} & \textbf{genotypes} & \textbf{reps} & \textbf{harvest\_years}\\
-\midrule
-DIV95 & 1995 & 341 & 294 & 1 & 9\\
-AYT03 & 2003 & 240 & 80 & 3 & 5\\
-AYT13 & 2013 & 60 & 30 & 2 & 6\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\end{footnotesize}
-
-
-
-% End the M&M block
-\end{block}
-
-
+% %----------------------------------------------------------------------------------------
+% %	MATERIALS AND MATERIALS
+% %----------------------------------------------------------------------------------------
+%
+% \begin{block}{Phenotypic data}
+%
+%
+% % End the M&M block
+% \end{block}
+%
+%
 
 %----------------------------------------------------------------------------------------
 
@@ -307,323 +321,354 @@ AYT13 & 2013 & 60 & 30 & 2 & 6\\
 %	RESULTS
 %----------------------------------------------------------------------------------------
 
-\begin{block}{Stage 1}
+\begin{block}{2. Phenotypic Data and Stage 1 Analysis}
 
-
-%----------------------------------------------------------------------------------------
-
-% \vspace{0.5cm}
-%
-% %% Single column for now
-% % One column
-% \begin{columns}[t,totalwidth=\twocolwid] % Split up the two columns wide column
-%
-% % A single column
-% \begin{column}{\twocolwid}
-%
-%
-% % Figure 2
-%
-% \begin{center}
-%   \begin{figure}
-%     \includegraphics[width=1\linewidth]{figures/figure2.png}
-%     \caption{A figure!}
-%   \end{figure}
-% \end{center}
-%
-%
-% % End the column
-% \end{column}
-%
-% % End of column split
-% \end{columns}
-%
-
-
-
-
-%----------------------------------------------------------------------------------------
-
-\vspace{0.5cm}
 
 %% Columns for figure 3
 
 
-%% Split into two columns
-\begin{columns}[t,totalwidth=\twocolwid] % Split up the two columns wide column
-
-
-% Second column
-\begin{column}{0.75\twocolwid}
-
-% % Figure 3
-% \begin{center}
-%   \begin{figure}
-%     \includegraphics[width=0.95\linewidth]{figures/figure3.jpg}
-%     % \caption{A figure!}
-%   \end{figure}
-% \end{center}
-
-\end{column}
-
-
-% First column
-\begin{column}{0.23\twocolwid}
-
-The best test locations are denoted by \textbf{larger points in the upper-right corner} of each plot
-% \begin{itemize}
-%   \item Precision (\textit{x}-axis; increases left-to-right)
-%   \item Repeatability (\textit{y}-axis; increases bottom-to-top)
-%   \item Representativeness (point size; increases with larger points)
-% \end{itemize}
-
-\vspace{1cm}
-
-
-Some locations are ideal for multiple traits: BTT (Bottineau, ND); PLL (Pullman, WA)
-
-\vspace{1cm}
-
-For other locations, only some traits are reliably phenotyped: MRR (Morris, MN); ABR (Aberdeen, ID)
-
-\vspace{1cm}
-
-\textbf{Most test locations are not ideal for phenotyping all traits}
-
-\end{column}
-
-
-% First column
-\begin{column}{0.02\twocolwid}
-\end{column}
-
-\end{columns}
-
-\vspace{4cm}
-
-%----------------------------------------------------------------------------------------
-
-
-
-%% Columns for figure 4
 
 %% Split into two columns
 \begin{columns}[t,totalwidth=\twocolwid] % Split up the two columns wide column
 
-% First column
-\begin{column}{0.48\twocolwid}
+
+% First column is for phenotypic data
+\begin{column}{0.33\twocolwid}
+\vspace{-2cm}
 
 
-% % Figure 4
-% \begin{center}
-%   \begin{figure}
-%     \includegraphics[width=0.75\linewidth]{figures/figure4a.jpg}
-%     % \caption{A figure!}
-%   \end{figure}
-% \end{center}
 
-\textbf{Fewer, optimized locations led to similar or better phenotype data quality compared to all or random sets of locations}
-
-\vspace{0.5cm}
+We analyzed phenotypic data for four traits in two multi-year cranberry evaluation trials:
 
 
+
+
+%% Table 1: description of phenotyping trials
+
+\begin{scriptsize}
+
+\begin{table}
+\centering
+\begin{tabular}{>{\raggedright\arraybackslash}p{1in}>{\centering\arraybackslash}p{1.5in}>{\centering\arraybackslash}p{1.2in}>{\centering\arraybackslash}p{1.7in}>{\centering\arraybackslash}p{1in}>{\centering\arraybackslash}p{1.8in}}
+\toprule
+\textbf{Trial} & \textbf{Year\ Planted} & \textbf{Plots} & \textbf{Genotypes} & \textbf{Reps} & \textbf{Years\ Harvested}\\
+\midrule
+AYT03 & 2003 & 240 & 80 & 3 & 5\\
+AYT13 & 2013 & 60 & 30 & 2 & 6\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{scriptsize}
+
+
+
+
+%% Table 1: description of traits
+
+\begin{scriptsize}
+
+\begin{table}
+\centering
+\begin{tabular}{>{\raggedright\arraybackslash}p{2in}>{\centering\arraybackslash}p{1in}>{\centering\arraybackslash}p{5.5in}}
+\toprule
+\textbf{Trait} & \textbf{Abbrv.} & \textbf{Description}\\
+\midrule
+Fruit Weight & FW & Average mass (g) of individual fruit \\
+Fruit Yield & FY & Total yield of fruit (Mg) per unit area (ha) \\
+Total Anthocyanin Content & TAC & Level of anthocyanins (mg) per mass (g) of fruit \\
+Percent Fruit Rot & PFR & Percentage (\%) of rotted fruit in a harvested sample \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{scriptsize}
 
 
 \end{column}
 
-% Spacer
-\begin{column}{0.02\twocolwid}
-\end{column}
 
 
-% Second column
-\begin{column}{0.48\twocolwid}
+% Second column is a figure
+\begin{column}{0.45\twocolwid}
+\vspace{-2cm}
 
-% % Figure 5
-% \begin{center}
-%   \begin{figure}
-%     \includegraphics[width=0.85\linewidth]{figures/figure5.jpg}
-%     % \caption{A figure!}
-%   \end{figure}
-% \end{center}
+\begin{footnotesize}
 
+\textbf{Breeding plots are not randomized each year, which induces correlations}
 
-\vspace{1cm}
+\end{footnotesize}
 
 
-
-
-\vspace{1cm}
-
-\textbf{Optimization generally increased phenotype data quality while reducing the number of locations by 50-75\%}
-
-
-\vspace{1cm}
-
-
-% %% Figure of the second module
-% \begin{alertblock}{Implications}
-%
-% \begin{itemize}
-%   \item{Text}
-%   \item{Text}
-%   \item{Text}
-% \end{itemize}
-%
-% \end{alertblock}
+% Figure 3
+\begin{center}
+  \begin{figure}
+    \includegraphics[width=0.9\linewidth]{figures/figure2a.png}
+    % \caption{A figure!}
+  \end{figure}
+\end{center}
 
 \end{column}
 
-% Spacer
-\begin{column}{0.02\twocolwid}
-\end{column}
 
 
 
-\end{columns}
+% \textbf{Breeding plots are not randomized each year, which induces correlations}
 
 
 
-%-------------------------------
-
-% % Insert an alert block that spans the whole width
-%
-% % Set the color
-% \setbeamercolor{block alerted title}{fg=white,bg=orangeset1!70} % Change the alert block title colors
-% \setbeamercolor{block alerted body}{fg=black,bg=orangeset1!10} % Change the alert block body colors
-%
-% \begin{alertblock}{}
-%
-% % Divide into columns
-% % Now split into two columns
-% \begin{columns}[t,totalwidth=\twocolwid] % Split up the two columns wide column
-%
-% \begin{column}{\onecolwid} %
-%
-% %%% Fill in here
-%
-% \end{column} % End of column
-%
-% %%-----------------------------------
-%
-% \begin{column}{\onecolwid} % The second column within column 2 (column 2.2)
-%
-% %%% Fill in here
-%
-%
-% \end{column} % End of column
-%
-% \end{columns} % End of the split of column
-%
-% \end{alertblock}
-
-%--------------------------------
 
 
-% End the results block
-\end{block}
-
-%----------------------------
-
-
-%% Add some space
-\vspace{2cm}
+% The last column describes the Stage 1 procedure and results
+\begin{column}{0.22\twocolwid}
+\vspace{-2cm}
 
 
-%----------------------------------------------------------------------------------------
-% Split into columns
-\begin{columns}[t,totalwidth=\twocolwid] % Split up the two columns wide column
-%----------------------------------------------------------------------------------------
 
-%----------------------------------------------------------------------------------------
-%	DISCUSSION/CONCLUSIONS
-%----------------------------------------------------------------------------------------
+\begin{footnotesize}
 
-\begin{column}{0.48\twocolwid}
-
-% Set the color
-\setbeamercolor{block alerted title}{fg=white,bg=orangeset1!70} % Change the alert block title colors
-\setbeamercolor{block alerted body}{fg=black,bg=orangeset1!10} % Change the alert block body colors
-
-\begin{alertblock}{Read more / reach out}
-
-\begin{minipage}{0.3\linewidth}
-% \begin{figure}[H]
-%   \includegraphics[width=1\linewidth]{figures/cs_qr_code.png}
-% \end{figure}
-\end{minipage} \hfill
-\begin{minipage}{0.7\linewidth}
-Read our paper in \textit{Crop Science}
-\end{minipage}
-
-
-\textbf{Contact:}
 \begin{itemize}
-  \item Email: jeffrey.neyhart@usda.gov
-  \item LinkedIn: linkedin.com/in/jeffneyhart
-  \item GitHub: github.com/neyhartj
+  \item{In \textbf{Stage 1}, genotype-harvest year means (BLUEs) are estimated using a mixed-model\cite{Endelman2023-rk}.}
+  \item{BLUEs and their variances are saved for Stage 2.}
+  \item{\textbf{Modeling the correlation of spatial (plot) effects over years improves fit.}}
 \end{itemize}
 
 
+\end{footnotesize}
 
-% % Split into columns
-% \begin{columns}[t,totalwidth=\onecolwid] % Split up the two columns wide column
+
+\begin{scriptsize}
+
+% Table of model results
+
+\begin{table}
+\centering
+\begin{tabular}{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{ } & \multicolumn{2}{c}{Model AIC} \\
+\cmidrule(l{3pt}r{3pt}){3-4}
+Trial & Trait & Null & Correlation\\
+\midrule
+AYT03 & FW & 0 & -30.3\\
+AYT03 & FY & 0 & -93.7\\
+AYT03 & TAC & 0 & -14.6\\
+AYT03 & PFR & 0 & -40.0\\
+AYT13 & FW & 0 & -6.8\\
+AYT13 & FY & 0 & -5.7\\
+AYT13 & TAC & 0 & -8.1\\
+AYT13 & PFR & 0 & -42.7\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\end{scriptsize}
+
+
+
+\end{column}
+
+
+\end{columns}
+
+% End the stage 1 block
+\end{block}
+
+
+
+
+%----------------------------------------------------------------------------------------
+
+% Split into two columns
+\begin{columns}[t,totalwidth=\twocolwid] % Split up the two columns wide column
+
+% First column for stage two block
+\begin{column}{0.67\twocolwid}
+
+
+% \vspace{2cm}
+
+
+% Begin the stage 2 block
+\begin{block}{3. Stage 2 Analysis}
+
+
+%% Columns for the stage 2 block
+
+%% Split into two columns
+\begin{columns}[t,totalwidth=0.67\twocolwid] % Split up the two columns wide column
+
+% First column
+\begin{column}{0.335\twocolwid}
+\vspace{-2cm}
+
+
+% Describe the model
+\begin{footnotesize}
+
+In \textbf{Stage 2}, genotype-harvest year BLUPs are predicted using a model:
+
+\begin{equation*}
+BLUE[G_{ij}] = y_{ij} = H_j + g(H)_{ij} + s_{ij}
+\end{equation*}
+
+$y_{ij}$: BLUE of the genotype-harvest mean \\
+$H_j$: fixed effect of harvest year \\
+$g(H)_{ij}$: BLUP of genotype in harvest year [$g(H)_{ij} \sim N(0, \mathbf{G})$] \\
+$s_{ij}$: residual error
+
+
+\vspace{1cm}
+
+\textbf{Genetic correlations were high between harvest years (upper-right triangle in the below $\mathbf{G}$ matrices):}
+
+\end{footnotesize}
+
+% Add a figure
+% Figure 3
+\begin{center}
+  \begin{figure}
+    \includegraphics[width=0.90\linewidth]{figures/figure3.png}
+    % \caption{A figure!}
+  \end{figure}
+\end{center}
+
+
+
+
+% \begin{scriptsize}
 %
-% \begin{column}{0.5\onecolwid}
+%
+% \begin{table}
+% \centering
+% \begin{tabular}{>{\raggedright\arraybackslash}p{1.5in}>{\centering\arraybackslash}p{
+% 6in}}
+% \toprule
+% Cov. Str. & Description\\
+% \midrule
+% ID & Constant genetic variance across years\\
+% CS & Constant genetic variance across years and constant correlation between years\\
+% CSH & Heterogenous genetic variance across years and constant correlation between years\\
+% AR1 & Constant genetic variance across years and decaying correlation between years\\
+% AR1H & Heterogenous genetic variance across years and decaying correlation between years\\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+%
+% \end{scriptsize}
+
+
+
+\end{column}
+
+
+% Second column
+\begin{column}{0.335\twocolwid}
+\vspace{-2cm}
+
+
+\begin{footnotesize}
+
+\textbf{Cross-validation:}
+
+\begin{itemize}
+  \item{Phenotypes in later years were masked}
+  \item{Phenotypes in early years were used in prediction}
+  \item{\textbf{Models that include serial correlations were often most accurate}}
+\end{itemize}
+
+% Add a figure
+% Figure 3
+\begin{center}
+  \begin{figure}
+    \includegraphics[width=0.80\linewidth]{figures/figure5.png}
+    % \caption{A figure!}
+  \end{figure}
+\end{center}
+
+
+\end{footnotesize}
+
+
+%
+% \begin{scriptsize}
 %
 %
+% \begin{table}
+% \centering
+% \begin{tabular}{lcccccc}
+% \toprule
+% \multicolumn{1}{c}{ } & \multicolumn{1}{c}{ } & \multicolumn{5}{c}{RMSEP} \\
+% \cmidrule(l{3pt}r{3pt}){3-7}
+% Trial & Trait & ID & CS & CSH & AR1 & AR1H\\
+% \midrule
+% AYT03 & FW & 0.243 & \textbf{0.203} & 0.216 & 0.204 & 0.217\\
+% AYT03 & FY & 112 & \textbf{102} & 101 & 119 & 118\\
+% AYT03 & PFR & 16.4 & 16.6 & 16.5 & \textbf{16.1} & 16.6\\
+% AYT03 & TAC & 5.13 & 12.5 & 12.5 & \textbf{4.10} & 11.3\\
+% AYT13 & FW & 0.232 & 0.375 & 0.375 & \textbf{0.193} & 0.373\\
+% AYT13 & FY & 98.7 & 89.4 & \textbf{89.4} & NA & 108\\
+% AYT13 & PFR & 14.3 & 14.3 & \textbf{12.9} & 14.3 & 14.3\\
+% AYT13 & TAC & \textbf{15.1} & 17.7 & 15.5 & 16.8 & 17.4\\
+% \bottomrule
+% \end{tabular}
+% \end{table}
 %
-% % QR code
-% \begin{center}
-%
-% Read our paper in \textit{Crop Science}:
-%
-% \begin{figure}
-%   \includegraphics[width=0.5\linewidth]{figures/cs_qr_code.png}
-% \end{figure}
-%
-% \end{center}
-%
-%
-% \end{column}
-%
-% \begin{column}{0.5\onecolwid}
-%
-%
-% % QR code
-% \begin{center}
-%
-% Access the code for this analysis:
-%
-% \begin{figure}
-%   \includegraphics[width=0.5\linewidth]{figures/github_qr_code.png}
-% \end{figure}
-%
-% \end{center}
-%
-%
-% \end{column}
-%
-% \end{columns}
+% \end{scriptsize}
+
+
+
+\end{column}
+
+% End the Stage 2 columns
+\end{columns}
+
+
+% End the Stage 2 block
+\end{block}
+
+
+% End the column containing stage 2
+\end{column}
+
+
+%----------------------------
+
+% Open a second column for reference/acknolwedgements
+\begin{column}{0.33\twocolwid}
+
+
+
+
+%----------------------------------------------------------------------------------------
+%	CONCLUSIONS AND NEXT STEPS
+%----------------------------------------------------------------------------------------
+
+
+% Change the font of the block title for the next two sections
+% \setbeamerfont{block title}{size=\small}
+
+\setbeamercolor{block alerted title}{fg=white,bg=orangeset1!70} % Change the alert block title colors
+\setbeamercolor{block alerted body}{fg=black,bg=orangeset1!10} % Change the alert block body colors
+
+\vspace{4cm}
+
+\begin{alertblock}{\Large{4. Next Steps}}
+
+\begin{footnotesize}
+\begin{itemize}
+  \item \textbf{Compare serial correlation models in genomic prediction}
+  \vspace{0.5cm}
+  \item \textbf{Evaluate sparse phenotyping designs}
+  \vspace{0.5cm}
+  \item \textbf{Develop improved perennial breeding trial experimental designs}
+\end{itemize}
+\end{footnotesize}
 
 
 \end{alertblock}
 
 
-\end{column}
-
-
-% Spacer
-\begin{column}{0.02\twocolwid}
-\end{column}
-
-
-
-%----------------------------------------------------------------------------------------
-
-%% Open an Acknowledgements/Reference column
-
-\begin{column}{0.48\twocolwid}
 
 
 
@@ -636,10 +681,11 @@ Read our paper in \textit{Crop Science}
 % \setbeamerfont{block title}{size=\small}
 
 \begin{block}{\large{Acknowledgements}}
+\vspace{-2cm}
 
 \begin{footnotesize}
 
-We thank C. Evans, C. Martens, and S. Yang (USDA-ARS) for providing data from the nursery reports. This research was supported by USDA National Institute of Food and Agriculture Grant 2018-67013-27620 and USDA-ARS project 8042-21000-279-00D. USDA is an equal opportunity provider and employer.
+We thank Dr. Nicholi Vorsa for sharing data from evaluation trials from the Rutgers Univ. cranberry breeding program This research was supported by USDA NIFA SCRI Grant 2022-51181-38322 and USDA-ARS project 8042-21000-023-000D. USDA is an equal opportunity provider and employer.
 
 \end{footnotesize}
 
@@ -651,52 +697,34 @@ We thank C. Evans, C. Martens, and S. Yang (USDA-ARS) for providing data from th
 %----------------------------------------------------------------------------------------
 
 \begin{block}{\large{References}}
+\vspace{-2cm}
+
 
 % \nocite{*} % Insert publications even if they are not cited in the poster
 % ^ removed this so list only those publications that are cited
 
 % \setbeamercolor{
 
-\begin{footnotesize}
+\begin{scriptsize}
 
 \bibliographystyle{supporting_files/posterbibstyle}
-\bibliography{\mendlibrary}
+\bibliography{\biblibrary}
 
 
-\end{footnotesize}
+\end{scriptsize}
 
 % End the reference block
 \end{block}
 
 
-% %----------------------------------------------------------------------------------------
-% %	CONTACT INFORMATION
-% %----------------------------------------------------------------------------------------
-%
-% \setbeamercolor{block alerted title}{fg=white,bg=orangeset1!70} % Change the alert block title colors
-% \setbeamercolor{block alerted body}{fg=black,bg=orangeset1!10} % Change the alert block body colors
-%
-% \begin{alertblock}{\large{\textsuperscript{*}Contact Information}}
-%
-% \begin{itemize}
-% \item Email: \href{mailto:neyha001@umn.edu}{neyha001@umn.edu}
-% \item Twitter: \href{https://twitter.com/neyhartje}{@neyhartje}
-% \item Web: \href{http://smithlab.cfans.umn.edu/}{smithlab.cfans.umn.edu}
-% \end{itemize}
-%
-% \end{alertblock}
-
-
-% End the acknowlegements/references column
-\end{column}
-
-% Spacer
-\begin{column}{0.02\twocolwid}
+% end the second column
 \end{column}
 
 
-% End the two bottom columns
+% end the two columns containing stage 2 and ref/ack
 \end{columns}
+
+
 %----------------------------------------------------------------------------------------
 
 %----------------------------------------------------------------------------------------
